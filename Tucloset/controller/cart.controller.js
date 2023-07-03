@@ -1,64 +1,74 @@
-// Simulación de una base de datos
-let carts = [];
+const Cart = require('../models/Cart.model');
 
 // Obtener todos los carritos
-const getAllCarts = (req, res) => {
-  res.json(carts);
+const getAllCarts = async (req, res) => {
+  try {
+    const carts = await Cart.find();
+    res.json(carts);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener los carritos' });
+  }
 };
 
 // Obtener un carrito por su ID de usuario
-const getCart = (req, res) => {
+const getCart = async (req, res) => {
   const userId = req.params.userId;
-  const cart = carts.find((cart) => cart.userId === userId);
-
-  if (cart) {
-    res.json(cart);
-  } else {
-    res.status(404).json({ error: 'Carrito no encontrado' });
+  try {
+    const cart = await Cart.findOne({ userId });
+    if (cart) {
+      res.json(cart);
+    } else {
+      res.status(404).json({ error: 'Carrito no encontrado' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Error al obtener el carrito' });
   }
 };
 
 // Crear un nuevo carrito
-const createCart = (req, res) => {
+const createCart = async (req, res) => {
   const { userId, items } = req.body;
 
-  const newCart = {
-    userId,
-    items,
-  };
-
-  carts.push(newCart);
-
-  res.status(201).json(newCart);
+  try {
+    const newCart = await Cart.create({ userId, items });
+    res.status(201).json(newCart);
+  } catch (error) {
+    res.status(500).json({ error: 'Error al crear el carrito' });
+  }
 };
 
 // Actualizar un carrito existente
-const updateCart = (req, res) => {
+const updateCart = async (req, res) => {
   const userId = req.params.userId;
   const { items } = req.body;
 
-  const cart = carts.find((cart) => cart.userId === userId);
+  try {
+    const cart = await Cart.findOneAndUpdate({ userId }, { items }, { new: true });
 
-  if (cart) {
-    cart.items = items || cart.items;
-
-    res.json(cart);
-  } else {
-    res.status(404).json({ error: 'Carrito no encontrado' });
+    if (cart) {
+      res.json(cart);
+    } else {
+      res.status(404).json({ error: 'Carrito no encontrado' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Error al actualizar el carrito' });
   }
 };
 
 // Eliminar un carrito existente
-const deleteCart = (req, res) => {
+const deleteCart = async (req, res) => {
   const userId = req.params.userId;
 
-  const index = carts.findIndex((cart) => cart.userId === userId);
+  try {
+    const cart = await Cart.findOneAndRemove({ userId });
 
-  if (index !== -1) {
-    carts.splice(index, 1);
-    res.sendStatus(204);
-  } else {
-    res.status(404).json({ error: 'Carrito no encontrado' });
+    if (cart) {
+      res.sendStatus(204);
+    } else {
+      res.status(404).json({ error: 'Carrito no encontrado' });
+    }
+  } catch (error) {
+    res.status(500).json({ error: 'Error al eliminar el carrito' });
   }
 };
 

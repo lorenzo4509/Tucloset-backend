@@ -18,6 +18,11 @@ const productSchema = new Schema(
       type: Number,
       required: [true, "Product quantity is required."],
     },
+    shopper: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: [true, "User ID is required for the product."],
+    },
   },
   {
     timestamps: true,
