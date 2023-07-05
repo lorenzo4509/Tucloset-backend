@@ -44,16 +44,60 @@ router.post("/signup", (req, res, next) => {
         .then((createdUser) => {
           const { email, name, _id } = createdUser;
           const user = { email, name, _id };
-          res.status(201).json({ user: user });
+
+          // Generate JWT token
+          const token = jwt.sign({ userId: createdUser._id }, process.env.TOKEN_SECRET, {
+            expiresIn: "1h", // Token will expire in 1 hour. Adjust this according to your needs.
+          });
+
+          res.status(201).json({ user: user, token: token });
         })
         .catch((err) => next(err));
     })
     .catch((err) => next(err));
 });
 
-// GET /auth/verify - Verifies the authentication token
-router.get("/verify", isAuthenticated, (req, res, next) => {
-  res.status(200).json(req.payload);
+// POST /auth/login - Authenticates the user and generates an authentication token
+router.post("/login", (req, res, next) => {
+  const { email, password } = req.body;
+
+  if (email === "" || password === "") {
+    res.status(400).json({ message: "Provide email and password" });
+    return;
+  }
+
+  User.findOne({ email })
+    .then((user) => {
+      if (!user) {
+        res.status(400).json({ message: "Wrong credentials." });
+        return;
+      }
+
+      bcrypt
+        .compare(password, user.password)
+        .then((isSamePassword) => {
+          if (!isSamePassword) {
+            res.status(400).json({ message: "Wrong credentials." });
+            return;
+          }
+
+          // Generate JWT token
+          const token = jwt.sign({ userId: user._id }, process.env.TOKEN_SECRET, {
+            expiresIn: "1h", // Token will expire in 1 hour. Adjust this according to your needs.
+          });
+
+          res.status(200).json({ user, token });
+        })
+        .catch((err) => next(err));
+    })
+    .catch((err) => next(err));
+});
+
+// GET /auth/logout - Logs out the user
+router.get("/logout", isAuthenticated, (req, res) => {
+  // Perform any necessary logout operations
+
+  res.status(200).json({ message: "Logout successful" });
 });
 
 module.exports = router;
