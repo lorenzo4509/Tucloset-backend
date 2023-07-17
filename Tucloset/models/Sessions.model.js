@@ -11,10 +11,6 @@ const sessionsSchema = new Schema({
     required: true,
     unique: true
   },
-  expiresAt: {
-    type: Date,
-    required: true
-  }
 });
 
 const Sessions = model("Sessions", sessionsSchema);

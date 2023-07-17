@@ -21,11 +21,13 @@ const authRoutes = require("./routes/auth.routes");
 const productRoutes = require("./routes/products.routes");
 const cartRoutes = require("./routes/cart.routes");
 const sessionsRoutes = require("./routes/sessions.routes");
+const userRoutes = require("./routes/user.routes"); // Importar las rutas del usuario
 
 app.use("/api", indexRoutes);
 app.use("/auth", authRoutes);
+app.use("/api/user", userRoutes); // Agregar las rutas del usuario
 app.use("/api/products", productRoutes);
-app.use("/api/cart", cartRoutes);
+app.use("/api/carts", cartRoutes);
 app.use("/api/sessions", sessionsRoutes);
 
 // ❗ To handle errors. Routes that don't exist or errors that you handle in specific routes

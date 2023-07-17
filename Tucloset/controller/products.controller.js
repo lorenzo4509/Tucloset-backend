@@ -4,9 +4,9 @@ const Product = require('../models/Product.model');
 const getAllProducts = async (req, res) => {
   try {
     const products = await Product.find();
-    res.json(products);
+    res.json(products); 
   } catch (error) {
-    res.status(500).json({ error: 'Error al obtener los productos' });
+    res.status(500).json({ error: "Error al obtener los productos" });
   }
 };
 

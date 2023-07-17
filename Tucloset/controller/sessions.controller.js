@@ -23,8 +23,11 @@ const createSession = async (req, res) => {
 // Función para cerrar una sesión
 const logout = async (req, res) => {
   try {
-    // Lógica para cerrar una sesión
-    // ...
+    // Obtener el token de autenticación de la sesión actual
+    const token = req.headers.authorization;
+
+    // Buscar y eliminar la sesión con el token proporcionado
+    await Session.findOneAndDelete({ token });
 
     res.status(200).json({ message: "Logout successful" });
   } catch (error) {

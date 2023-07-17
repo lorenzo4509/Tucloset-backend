@@ -6,26 +6,27 @@ const User = require("../models/User.model");
 
 // POST /products - Creates a new product in the database
 router.post("/", isAuthenticated, (req, res, next) => {
-  const { name, description, price, quantity } = req.body;
+  const { name, description, price, quantity} = req.body;
 
   if (name === "" || description === "" || price === "" || quantity === "") {
     res.status(400).json({ message: "Provide name, description, price, and quantity" });
     return;
   }
+console.log(req.payload);
 
   const product = new Product({
     name,
     description,
     price,
     quantity,
-    shopper: req.payload._id, // Assign the user's ID to the 'shopper' field
+    shopper: req.payload.userId, // Assign the user's ID to the 'shopper' field
   });
 
   product.save()
     .then((createdProduct) => {
       // Update the user with the created product's ID
       User.findByIdAndUpdate(
-        req.payload._id,
+        req.payload.userId,
         { $push: { products: createdProduct._id } },
         { new: true }
       )
@@ -35,7 +36,7 @@ router.post("/", isAuthenticated, (req, res, next) => {
         .catch((err) => next(err));
     })
     .catch((err) => next(err));
-});
+}); 
 
 // GET /products - Retrieves all products from the database
 router.get("/", (req, res, next) => {

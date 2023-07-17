@@ -43,7 +43,7 @@ router.post("/signup", (req, res, next) => {
       User.create({ email, password: hashedPassword, name })
         .then((createdUser) => {
           const { email, name, _id } = createdUser;
-          const user = { email, name, _id };
+          const user = { email, name, _id, userId: _id};
 
           // Generate JWT token
           const token = jwt.sign({ userId: createdUser._id }, process.env.TOKEN_SECRET, {
@@ -58,7 +58,7 @@ router.post("/signup", (req, res, next) => {
 });
 
 // POST /auth/login - Authenticates the user and generates an authentication token
-router.post("/login", (req, res, next) => {
+router.post("/login",(req, res, next) => {
   const { email, password } = req.body;
 
   if (email === "" || password === "") {
@@ -86,7 +86,7 @@ router.post("/login", (req, res, next) => {
             expiresIn: "1h", // Token will expire in 1 hour. Adjust this according to your needs.
           });
 
-          res.status(200).json({ user, token });
+          res.status(200).json({ user, userId: user._id, token });
         })
         .catch((err) => next(err));
     })

@@ -1,4 +1,5 @@
-const Cart = require('../models/Cart.model');
+const Cart = require("../models/Cart.model");
+const Product = require("../models/Product.model")
 
 // Obtener todos los carritos
 const getAllCarts = async (req, res) => {
@@ -6,7 +7,7 @@ const getAllCarts = async (req, res) => {
     const carts = await Cart.find();
     res.json(carts);
   } catch (error) {
-    res.status(500).json({ error: 'Error al obtener los carritos' });
+    res.status(500).json({ error: "Error al obtener los carritos" });
   }
 };
 
@@ -15,13 +16,14 @@ const getCart = async (req, res) => {
   const userId = req.params.userId;
   try {
     const cart = await Cart.findOne({ userId });
+    console.log(cart, 'CARRRTT')
     if (cart) {
       res.json(cart);
     } else {
-      res.status(404).json({ error: 'Carrito no encontrado' });
+      res.status(404).json({ error: "Carrito no encontrado" });
     }
   } catch (error) {
-    res.status(500).json({ error: 'Error al obtener el carrito' });
+    res.status(500).json({ error: "Error al obtener el carrito" });
   }
 };
 
@@ -33,7 +35,7 @@ const createCart = async (req, res) => {
     const newCart = await Cart.create({ userId, items });
     res.status(201).json(newCart);
   } catch (error) {
-    res.status(500).json({ error: 'Error al crear el carrito' });
+    res.status(500).json({ error });
   }
 };
 
@@ -43,15 +45,19 @@ const updateCart = async (req, res) => {
   const { items } = req.body;
 
   try {
-    const cart = await Cart.findOneAndUpdate({ userId }, { items }, { new: true });
+    const cart = await Cart.findOneAndUpdate(
+      { userId },
+      { items },
+      { new: true }
+    );
 
     if (cart) {
       res.json(cart);
     } else {
-      res.status(404).json({ error: 'Carrito no encontrado' });
+      res.status(404).json({ error: "Carrito no encontrado" });
     }
   } catch (error) {
-    res.status(500).json({ error: 'Error al actualizar el carrito' });
+    res.status(500).json({ error: "Error al actualizar el carrito" });
   }
 };
 
@@ -65,10 +71,42 @@ const deleteCart = async (req, res) => {
     if (cart) {
       res.sendStatus(204);
     } else {
-      res.status(404).json({ error: 'Carrito no encontrado' });
+      res.status(404).json({ error: "Carrito no encontrado" });
     }
   } catch (error) {
-    res.status(500).json({ error: 'Error al eliminar el carrito' });
+    res.status(500).json({ error: "Error al eliminar el carrito" });
+  }
+};
+
+const addProductToCart = async (req, res) => {
+  const { userId, productId } = req.body;
+
+  try {
+    // Verificar si el usuario tiene un carrito activo
+    const cart = await Cart.findOne({ userId });
+    console.log(cart, 'CAAAAARRTTT/////')
+
+    if (!cart) {
+      return res.status(404).json({ error: "Carrito no encontrado" });
+    }
+
+    // Verificar si el producto existe
+    const product = await Product.findById(productId);
+    console.log(product, 'produuuccttt/////')
+    if (!product) {
+      return res.status(404).json({ error: "Producto no encontrado" });
+    }
+
+    // Agregar el producto al carrito
+    cart.items.push({ productId, ...product  });
+    await cart.save();
+
+
+    res
+      .status(201)
+      .json({ message: "Producto agregado al carrito exitosamente" });
+  } catch (error) {
+    res.status(500).json({ error });
   }
 };
 
@@ -78,4 +116,5 @@ module.exports = {
   getCart,
   updateCart,
   deleteCart,
+  addProductToCart,
 };
