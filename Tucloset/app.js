@@ -29,6 +29,12 @@ app.use("/api/user", userRoutes); // Agregar las rutas del usuario
 app.use("/api/products", productRoutes);
 app.use("/api/carts", cartRoutes);
 app.use("/api/sessions", sessionsRoutes);
+app.use(
+    cors({
+      origin: ["http://localhost:3000", process.env.ORIGIN],
+    })
+  );
+  
 
 // ❗ To handle errors. Routes that don't exist or errors that you handle in specific routes
 require("./error-handling")(app);
